@@ -90,6 +90,12 @@ def clean_japanese_spacing(text: str) -> str:
     return text.strip()
 
 
+def emphasize_guidance_labels(text: str) -> str:
+    """Bold the label portion before the first colon in guidance bullet items."""
+    pattern = re.compile(r"^(\s*[\*\-]\s*)([^：\n]+)(：)", re.MULTILINE)
+    return pattern.sub(lambda m: f"{m.group(1)}**{m.group(2)}{m.group(3)}**", text)
+
+
 @dataclass
 class Requirement:
     idx: str
@@ -275,7 +281,11 @@ def generate() -> None:
                         "intro_html": render_markdown_to_html(legacy.intro.strip()),
                         "sections": {name: legacy.sections.get(name, "").strip() for name in TARGET_SECTIONS},
                         "sections_html": {
-                            name: render_markdown_to_html(legacy.sections.get(name, "").strip())
+                            name: render_markdown_to_html(
+                                emphasize_guidance_labels(legacy.sections.get(name, "").strip())
+                                if name == "ガイダンスノート"
+                                else legacy.sections.get(name, "").strip()
+                            )
                             for name in TARGET_SECTIONS
                         },
                     }

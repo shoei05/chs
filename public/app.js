@@ -23,6 +23,126 @@ function formatGeneratedAt(isoString) {
   return date.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
 }
 
+function applyExternalLinkBehavior(root) {
+  root.querySelectorAll('a[href^="http"]').forEach((link) => {
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+  });
+}
+
+function htmlToPlain(html) {
+  if (!html) return "";
+  const temp = document.createElement("div");
+  temp.innerHTML = html;
+  return temp.textContent || temp.innerText || "";
+}
+
+function addTextBlock(doc, text, options) {
+  if (!text) return;
+  const { width, height } = doc.internal.pageSize;
+  const margin = options.margin ?? 40;
+  const indent = options.indent ?? 0;
+  const lineHeight = options.lineHeight ?? 1.4;
+  const fontSize = options.fontSize ?? 12;
+  const fontStyle = options.fontStyle ?? "normal";
+  const spacing = options.spacing ?? 6;
+  let y = options.cursor.y;
+
+  doc.setFont("helvetica", fontStyle);
+  doc.setFontSize(fontSize);
+
+  const usableWidth = width - margin * 2 - indent;
+  const lines = doc.splitTextToSize(text, usableWidth);
+
+  lines.forEach((line) => {
+    if (y > height - margin) {
+      doc.addPage();
+      y = margin;
+    }
+    doc.text(line, margin + indent, y);
+    y += fontSize * lineHeight;
+  });
+
+  y += spacing;
+  options.cursor.y = y;
+}
+
+function downloadPdf(commitment) {
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert("PDF生成ライブラリが読み込まれていません。");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const cursor = { y: 40 };
+
+  addTextBlock(doc, `2024のコミットメント番号${commitment.number}`, {
+    fontSize: 18,
+    fontStyle: "bold",
+    spacing: 8,
+    cursor,
+  });
+  addTextBlock(doc, `「${commitment.title}」`, {
+    fontSize: 14,
+    spacing: 10,
+    cursor,
+  });
+  addTextBlock(doc, "要件", {
+    fontSize: 14,
+    fontStyle: "bold",
+    spacing: 4,
+    cursor,
+  });
+  commitment.requirements.forEach((req) => {
+    addTextBlock(doc, `${req.id} ${req.text}`, {
+      indent: 16,
+      cursor,
+    });
+  });
+
+  addTextBlock(doc, "2018に対応する", {
+    fontSize: 14,
+    fontStyle: "bold",
+    spacing: 10,
+    cursor,
+  });
+
+  commitment.legacy_commitments.forEach((legacy) => {
+    addTextBlock(doc, `コミットメント番号${legacy.number}：「${legacy.title}」`, {
+      fontSize: 13,
+      fontStyle: "bold",
+      spacing: 6,
+      cursor,
+    });
+
+    const introPlain = htmlToPlain(legacy.intro_html || legacy.intro);
+    addTextBlock(doc, introPlain, {
+      indent: 12,
+      cursor,
+    });
+
+    TARGET_SECTIONS.forEach((sectionName) => {
+      const sectionHtml = legacy.sections_html?.[sectionName] || legacy.sections?.[sectionName];
+      if (!sectionHtml) return;
+      addTextBlock(doc, sectionName, {
+        fontSize: 12,
+        fontStyle: "bold",
+        spacing: 4,
+        cursor,
+      });
+      addTextBlock(doc, htmlToPlain(sectionHtml), {
+        indent: 12,
+        cursor,
+      });
+    });
+
+    cursor.y += 4;
+  });
+
+  doc.save(`chs_commitment_${String(commitment.number).padStart(2, "0")}.pdf`);
+}
+
 function renderList(commitments) {
   const list = document.createElement("ul");
   commitments
@@ -134,6 +254,15 @@ function renderDetail(commitment) {
 
     detailContainer.append(legacySection);
   });
+
+  applyExternalLinkBehavior(detailContainer);
+
+  const downloadBtn = document.createElement("button");
+  downloadBtn.type = "button";
+  downloadBtn.className = "download-pdf";
+  downloadBtn.textContent = "PDFをダウンロード";
+  downloadBtn.addEventListener("click", () => downloadPdf(commitment));
+  detailContainer.append(downloadBtn);
 }
 
 function showError(message) {

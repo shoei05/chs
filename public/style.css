@@ -3,6 +3,11 @@
   font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", system-ui, sans-serif;
   line-height: 1.6;
   font-size: 16px;
+  --accent-color: #c5487b;
+  --accent-light: #fde8f1;
+  --accent-light-strong: #f6c2d9;
+  --border-color: #e0d7db;
+  --text-subtle: #5c6b7a;
 }
 
 body {
@@ -23,16 +28,6 @@ header h1 {
   font-size: 1.5rem;
 }
 
-footer a {
-  color: #ffcf99;
-  text-decoration: underline;
-}
-
-footer a:hover,
-footer a:focus {
-  color: #ffe7c9;
-}
-
 .generated-info {
   margin: 0.25rem 0 0;
   font-size: 0.875rem;
@@ -48,7 +43,7 @@ main {
 nav#commitment-list {
   min-width: 18rem;
   max-width: 22rem;
-  border-right: 1px solid #d4d7dc;
+  border-right: 1px solid var(--border-color);
   background: #ffffff;
   padding: 1rem;
   overflow-y: auto;
@@ -65,25 +60,27 @@ nav#commitment-list ul {
 nav#commitment-list button {
   width: 100%;
   padding: 0.5rem 0.75rem;
-  border: 1px solid #d4d7dc;
+  border: 1px solid var(--border-color);
   border-radius: 0.5rem;
-  background: #f0f4f9;
+  background: var(--accent-light);
   color: inherit;
   text-align: left;
   cursor: pointer;
-  transition: background 0.2s ease, border 0.2s ease;
+  transition: background 0.2s ease, border 0.2s ease, color 0.2s ease;
 }
 
 nav#commitment-list button:hover,
 nav#commitment-list button:focus {
   outline: none;
-  border-color: #1565c0;
-  background: #e3f2fd;
+  border-color: var(--accent-color);
+  background: #fbd3e3;
+  color: #4a1c30;
 }
 
 nav#commitment-list button.active {
-  border-color: #003049;
-  background: #d1ecff;
+  border-color: var(--accent-color);
+  background: var(--accent-light-strong);
+  color: #4a1c30;
 }
 
 #commitment-detail {
@@ -130,9 +127,10 @@ ol.requirements li {
 }
 
 .requirement-id {
-  font-weight: 600;
+  font-weight: 700;
   display: inline-block;
   min-width: 3rem;
+  color: var(--accent-color);
 }
 
 .legacy {
@@ -140,7 +138,7 @@ ol.requirements li {
   padding: 1.25rem;
   border-radius: 0.75rem;
   background: #ffffff;
-  border: 1px solid #d4d7dc;
+  border: 1px solid var(--border-color);
 }
 
 .legacy h4 {
@@ -173,11 +171,46 @@ ol.requirements li {
 
 .placeholder {
   margin: 0;
-  color: #5c6b7a;
+  color: var(--text-subtle);
+}
+
+.download-pdf {
+  display: inline-block;
+  margin-top: 2rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 999px;
+  border: 2px solid var(--accent-color);
+  background: var(--accent-color);
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.download-pdf:hover,
+.download-pdf:focus {
+  background: #ffffff;
+  color: var(--accent-color);
 }
 
 footer {
   font-size: 0.85rem;
+}
+
+footer a,
+.legacy-content a,
+.legacy-intro a {
+  color: var(--accent-color);
+  text-decoration: underline;
+}
+
+footer a:hover,
+footer a:focus,
+.legacy-content a:hover,
+.legacy-content a:focus,
+.legacy-intro a:hover,
+.legacy-intro a:focus {
+  color: #8f3257;
 }
 
 .script-info {
@@ -194,6 +227,6 @@ footer {
     max-width: none;
     min-width: unset;
     border-right: none;
-    border-bottom: 1px solid #d4d7dc;
+    border-bottom: 1px solid var(--border-color);
   }
 }
