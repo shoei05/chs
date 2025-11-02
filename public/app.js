@@ -5,12 +5,6 @@ const detailContainer = document.getElementById("commitment-detail");
 const generatedInfo = document.getElementById("generated-info");
 
 let currentButton = null;
-let html2pdfReadyPromise = null;
-
-const HTML2PDF_SRC =
-  "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
-const HTML2PDF_INTEGRITY =
-  "sha512-YcsIPwBzbNknFQxfsOuwz5lu24XkGTOLAfulo7J29ilUrrU7zhFWJh71qN3kUSZ7mt3GvXYpEyoksmshDNh2Hw==";
 
 async function loadData() {
   const response = await fetch("data/commitments.json");
@@ -34,81 +28,6 @@ function applyExternalLinkBehavior(root) {
     link.target = "_blank";
     link.rel = "noopener noreferrer";
   });
-}
-
-function ensureHtml2Pdf() {
-  if (typeof window.html2pdf !== "undefined") {
-    return Promise.resolve();
-  }
-
-  if (!html2pdfReadyPromise) {
-    html2pdfReadyPromise = new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = HTML2PDF_SRC;
-      script.integrity = HTML2PDF_INTEGRITY;
-      script.crossOrigin = "anonymous";
-      script.referrerPolicy = "no-referrer";
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error("Failed to load html2pdf.js"));
-      document.head.appendChild(script);
-    });
-  }
-
-  return html2pdfReadyPromise;
-}
-
-async function downloadPdf(commitment) {
-  try {
-    await ensureHtml2Pdf();
-  } catch (error) {
-    console.error(error);
-    alert("PDF生成ライブラリを読み込めませんでした。");
-    return;
-  }
-
-  if (typeof window.html2pdf === "undefined") {
-    alert("PDF生成ライブラリが読み込まれていません。");
-    return;
-  }
-
-  const exportTarget = detailContainer.cloneNode(true);
-  exportTarget.querySelectorAll(".download-pdf").forEach((node) => node.remove());
-
-  const filename = `chs_commitment_${String(commitment.number).padStart(2, "0")}.pdf`;
-  const wrapper = document.createElement("div");
-  wrapper.style.position = "fixed";
-  wrapper.style.pointerEvents = "none";
-  wrapper.style.opacity = "0";
-  wrapper.style.left = "0";
-  wrapper.style.top = "0";
-  wrapper.style.width = `${detailContainer.offsetWidth}px`;
-  wrapper.appendChild(exportTarget);
-  document.body.appendChild(wrapper);
-
-  const options = {
-    margin: [10, 10, 10, 10],
-    filename,
-    image: { type: "jpeg", quality: 0.98 },
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
-    },
-    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-  };
-
-  window
-    .html2pdf()
-    .set(options)
-    .from(exportTarget)
-    .save()
-    .then(() => {
-      wrapper.remove();
-    })
-    .catch((error) => {
-      console.error(error);
-      wrapper.remove();
-      alert("PDFの生成に失敗しました。");
-    });
 }
 
 function renderList(commitments) {
@@ -216,13 +135,6 @@ function renderDetail(commitment) {
   });
 
   applyExternalLinkBehavior(detailContainer);
-
-  const downloadBtn = document.createElement("button");
-  downloadBtn.type = "button";
-  downloadBtn.className = "download-pdf";
-  downloadBtn.textContent = "PDFをダウンロード";
-  downloadBtn.addEventListener("click", () => downloadPdf(commitment));
-  detailContainer.append(downloadBtn);
 
   queueMicrotask(() => {
     heading.scrollIntoView({ behavior: "smooth", block: "start" });
