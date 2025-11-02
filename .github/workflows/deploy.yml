@@ -28,6 +28,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y poppler-utils
+      - name: Install Python dependencies
+        run: python3 -m pip install markdown
       - name: Generate worksheets
         run: python3 scripts/generate_commitments.py
       - name: Upload artifact

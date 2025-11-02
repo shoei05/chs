@@ -66,13 +66,6 @@ function renderDetail(commitment) {
   title.textContent = `「${commitment.title}」`;
   detailContainer.append(title);
 
-  const download = document.createElement("a");
-  download.href = commitment.markdown_path;
-  download.download = downloadFilename(commitment.number);
-  download.textContent = "Markdownをダウンロード";
-  download.className = "download-button";
-  detailContainer.append(download);
-
   const requirementsHeading = document.createElement("h3");
   requirementsHeading.textContent = "要件";
   detailContainer.append(requirementsHeading);
@@ -102,31 +95,30 @@ function renderDetail(commitment) {
     legacyTitle.textContent = `コミットメント番号${legacy.number}：「${legacy.title}」`;
     legacySection.append(legacyTitle);
 
-    if (legacy.intro) {
-      const intro = document.createElement("pre");
+    const introHtml = legacy.intro_html || legacy.intro;
+    if (introHtml) {
+      const intro = document.createElement("div");
       intro.className = "legacy-intro";
-      intro.textContent = legacy.intro;
+      intro.innerHTML = introHtml;
       legacySection.append(intro);
     }
 
     TARGET_SECTIONS.forEach((sectionName) => {
-      const content = legacy.sections?.[sectionName];
-      if (!content) return;
+      const contentHtml =
+        legacy.sections_html?.[sectionName] || legacy.sections?.[sectionName];
+      if (!contentHtml) return;
       const sectionHeading = document.createElement("h5");
       sectionHeading.textContent = sectionName;
       legacySection.append(sectionHeading);
 
-      const pre = document.createElement("pre");
-      pre.textContent = content;
-      legacySection.append(pre);
+      const sectionBody = document.createElement("div");
+      sectionBody.className = "legacy-content";
+      sectionBody.innerHTML = contentHtml;
+      legacySection.append(sectionBody);
     });
 
     detailContainer.append(legacySection);
   });
-}
-
-function downloadFilename(number) {
-  return `commitment_${number.toString().padStart(2, "0")}.md`;
 }
 
 function showError(message) {

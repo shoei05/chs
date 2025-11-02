@@ -23,6 +23,16 @@ header h1 {
   font-size: 1.5rem;
 }
 
+footer a {
+  color: #ffcf99;
+  text-decoration: underline;
+}
+
+footer a:hover,
+footer a:focus {
+  color: #ffe7c9;
+}
+
 .generated-info {
   margin: 0.25rem 0 0;
   font-size: 0.875rem;
@@ -92,22 +102,6 @@ nav#commitment-list button.active {
   margin-bottom: 1rem;
 }
 
-.download-button {
-  display: inline-block;
-  margin-bottom: 1.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  background: #1565c0;
-  color: #ffffff;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.download-button:hover,
-.download-button:focus {
-  background: #0d47a1;
-}
-
 ol.requirements {
   padding-left: 1.25rem;
 }
@@ -134,13 +128,28 @@ ol.requirements li {
   margin-top: 0;
 }
 
-.legacy pre {
-  white-space: pre-wrap;
-  word-break: break-word;
+.legacy-intro,
+.legacy-content {
   background: #f5f7fa;
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
   border-radius: 0.5rem;
   border: 1px solid #e1e4e8;
+  margin-bottom: 1rem;
+}
+
+.legacy-content ul,
+.legacy-content ol {
+  padding-left: 1.5rem;
+}
+
+.legacy-content li + li,
+.legacy-intro p + p {
+  margin-top: 0.5rem;
+}
+
+.legacy-content strong,
+.legacy-intro strong {
+  font-weight: 700;
 }
 
 .placeholder {
@@ -150,6 +159,11 @@ ol.requirements li {
 
 footer {
   font-size: 0.85rem;
+}
+
+.script-info {
+  margin-top: 0.25rem;
+  opacity: 0.8;
 }
 
 @media (max-width: 960px) {

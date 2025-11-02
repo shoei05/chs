@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-Generate Markdown worksheets and structured data that map CHS 2024 commitments
+Generate structured data that map CHS 2024 commitments
 to their corresponding 2018 content, based on the local source files:
 
 - chs_2024_japanese.pdf
 - 2018.md
 - 対応表.md
 
-Outputs:
+Output:
   public/data/commitments.json   (for the HTML app)
-  public/md/commitment_XX.md     (worksheet Markdown files)
 
-The script expects `pdftotext` from poppler to be available to extract text
-from the CHS 2024 PDF. It will invoke it with `-layout` so requirement text
-is kept together for parsing.
+The script expects `pdftotext` from poppler to be available to extract text from
+the CHS 2024 PDF. It will invoke it with `-layout` so requirement text is kept
+together for parsing. The python-markdown package is used to convert 2018
+content into HTML.
 """
 
 from __future__ import annotations
@@ -34,7 +34,6 @@ MAPPING_PATH = BASE_DIR / "対応表.md"
 SOURCE_2018_PATH = BASE_DIR / "2018.md"
 
 DATA_DIR = BASE_DIR / "public" / "data"
-MD_OUTPUT_DIR = BASE_DIR / "public" / "md"
 
 TARGET_SECTIONS = ["パフォーマンス指標", "基本行動", "組織の責任", "ガイダンスノート"]
 
@@ -55,6 +54,10 @@ def ensure_dependencies() -> None:
         subprocess.run(["pdftotext", "-v"], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except FileNotFoundError as exc:
         raise GenerationError("pdftotext command not found. Install poppler or make it available in PATH.") from exc
+    try:
+        import markdown  # noqa: F401
+    except ModuleNotFoundError as exc:
+        raise GenerationError("python-markdown package is required. Install it with `python3 -m pip install markdown`.") from exc
 
 
 def run_pdftotext(pdf_path: Path) -> str:
@@ -224,39 +227,22 @@ def parse_mapping(mapping_text: str) -> Dict[int, List[int]]:
 
 def ensure_output_dirs() -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    MD_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def build_markdown_entry(
-    commitment: Commitment2024,
-    legacy_commitments: Sequence[Commitment2018],
-) -> str:
-    """Create the Markdown worksheet text for a single 2024 commitment."""
-    lines: List[str] = []
-    lines.append(f"2024のコミットメント番号{commitment.number}：「{commitment.title}」")
-    lines.append("要件")
-    for req in commitment.requirements:
-        lines.append(f"{req.idx} {req.text}")
-    lines.append("")
-    lines.append("2018に対応する")
-    for legacy in legacy_commitments:
-        lines.append(f"コミットメント番号{legacy.number}：「{legacy.title}」")
-        legacy_intro = legacy.intro.strip()
-        if legacy_intro:
-            lines.append(legacy_intro)
-            lines.append("")
-        for section_name in TARGET_SECTIONS:
-            section_content = legacy.sections.get(section_name)
-            if not section_content:
-                continue
-            lines.append(f"#### **{section_name}**")
-            lines.append(section_content.strip())
-            lines.append("")
-    # Remove trailing blank lines
-    while lines and lines[-1] == "":
-        lines.pop()
-    lines.append("")  # Ensure file ends with newline
-    return "\n".join(lines)
+def render_markdown_to_html(markdown_text: str) -> str:
+    """Convert markdown text into HTML using python-markdown."""
+    if not markdown_text:
+        return ""
+    import markdown
+
+    return markdown.markdown(
+        markdown_text,
+        extensions=[
+            "extra",
+            "sane_lists",
+        ],
+        output_format="html5",
+    )
 
 
 def generate() -> None:
@@ -273,10 +259,6 @@ def generate() -> None:
         commitment = commitments_2024[number]
         target_numbers = mapping.get(number, [])
         legacy_commitments = [commitments_2018[idx] for idx in target_numbers]
-        markdown_text = build_markdown_entry(commitment, legacy_commitments)
-
-        md_filename = f"commitment_{number:02}.md"
-        (MD_OUTPUT_DIR / md_filename).write_text(markdown_text, encoding="utf-8")
 
         commitments_payload.append(
             {
@@ -284,14 +266,18 @@ def generate() -> None:
                 "number": number,
                 "title": commitment.title,
                 "requirements": [{"id": req.idx, "text": req.text} for req in commitment.requirements],
-                "markdown_path": f"md/{md_filename}",
                 "legacy_commitments": [
                     {
                         "year": 2018,
                         "number": legacy.number,
                         "title": legacy.title,
                         "intro": legacy.intro.strip(),
+                        "intro_html": render_markdown_to_html(legacy.intro.strip()),
                         "sections": {name: legacy.sections.get(name, "").strip() for name in TARGET_SECTIONS},
+                        "sections_html": {
+                            name: render_markdown_to_html(legacy.sections.get(name, "").strip())
+                            for name in TARGET_SECTIONS
+                        },
                     }
                     for legacy in legacy_commitments
                 ],
