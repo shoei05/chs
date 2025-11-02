@@ -177,15 +177,6 @@ function renderList(commitments) {
 function renderDetail(commitment) {
   detailContainer.innerHTML = "";
 
-  const titleWrapper = document.createElement("div");
-  titleWrapper.className = "title-visual";
-  const titleImg = document.createElement("img");
-  titleImg.src = "images/title.png";
-  titleImg.alt = "CHS コミットメント 1-9 のアイコン";
-  titleImg.className = "title-icon";
-  titleWrapper.append(titleImg);
-  detailContainer.append(titleWrapper);
-
   const heading = document.createElement("h2");
   heading.textContent = `2024のコミットメント番号${commitment.number}`;
   detailContainer.append(heading);

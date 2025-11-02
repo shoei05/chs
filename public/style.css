@@ -21,11 +21,23 @@ footer {
   background: #003049;
   color: #ffffff;
   padding: 1.25rem 2rem;
+  text-align: center;
 }
 
 header h1 {
   margin: 0;
   font-size: 1.5rem;
+}
+
+.title-visual {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.title-visual .title-icon {
+  width: 80%;
+  max-width: 600px;
+  height: auto;
 }
 
 .generated-info {
@@ -87,17 +99,6 @@ nav#commitment-list button.active {
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
-}
-
-#commitment-detail .title-visual {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-#commitment-detail .title-icon {
-  width: 50%;
-  max-width: 420px;
-  height: auto;
 }
 
 #commitment-detail h2 {
@@ -211,11 +212,6 @@ footer a:focus,
 .legacy-intro a:hover,
 .legacy-intro a:focus {
   color: #8f3257;
-}
-
-.script-info {
-  margin-top: 0.25rem;
-  opacity: 0.8;
 }
 
 @media (max-width: 960px) {
