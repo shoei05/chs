@@ -5,6 +5,12 @@ const detailContainer = document.getElementById("commitment-detail");
 const generatedInfo = document.getElementById("generated-info");
 
 let currentButton = null;
+let html2pdfReadyPromise = null;
+
+const HTML2PDF_SRC =
+  "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+const HTML2PDF_INTEGRITY =
+  "sha512-YcsIPwBzbNknFQxfsOuwz5lu24XkGTOLAfulo7J29ilUrrU7zhFWJh71qN3kUSZ7mt3GvXYpEyoksmshDNh2Hw==";
 
 async function loadData() {
   const response = await fetch("data/commitments.json");
@@ -30,13 +36,41 @@ function applyExternalLinkBehavior(root) {
   });
 }
 
-function downloadPdf(commitment) {
-  if (typeof html2pdf === "undefined") {
+function ensureHtml2Pdf() {
+  if (typeof window.html2pdf !== "undefined") {
+    return Promise.resolve();
+  }
+
+  if (!html2pdfReadyPromise) {
+    html2pdfReadyPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = HTML2PDF_SRC;
+      script.integrity = HTML2PDF_INTEGRITY;
+      script.crossOrigin = "anonymous";
+      script.referrerPolicy = "no-referrer";
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error("Failed to load html2pdf.js"));
+      document.head.appendChild(script);
+    });
+  }
+
+  return html2pdfReadyPromise;
+}
+
+async function downloadPdf(commitment) {
+  try {
+    await ensureHtml2Pdf();
+  } catch (error) {
+    console.error(error);
+    alert("PDF生成ライブラリを読み込めませんでした。");
+    return;
+  }
+
+  if (typeof window.html2pdf === "undefined") {
     alert("PDF生成ライブラリが読み込まれていません。");
     return;
   }
 
-  // Clone the detail section to avoid mutating the live DOM
   const exportTarget = detailContainer.cloneNode(true);
   exportTarget.querySelectorAll(".download-pdf").forEach((node) => node.remove());
 
@@ -62,7 +96,8 @@ function downloadPdf(commitment) {
     jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
   };
 
-  html2pdf()
+  window
+    .html2pdf()
     .set(options)
     .from(exportTarget)
     .save()
@@ -112,6 +147,7 @@ function renderDetail(commitment) {
 
   const heading = document.createElement("h2");
   heading.textContent = `2024のコミットメント番号${commitment.number}`;
+  heading.id = `commitment-${commitment.number}`;
   detailContainer.append(heading);
 
   const commitmentIcon = document.createElement("img");
@@ -187,6 +223,11 @@ function renderDetail(commitment) {
   downloadBtn.textContent = "PDFをダウンロード";
   downloadBtn.addEventListener("click", () => downloadPdf(commitment));
   detailContainer.append(downloadBtn);
+
+  queueMicrotask(() => {
+    heading.scrollIntoView({ behavior: "smooth", block: "start" });
+    history.replaceState(null, "", `#${heading.id}`);
+  });
 }
 
 function showError(message) {
