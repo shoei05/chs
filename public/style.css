@@ -46,6 +46,27 @@ header h1 {
   opacity: 0.85;
 }
 
+.mapping-link {
+  margin-top: 1rem;
+}
+
+.link-button {
+  display: inline-block;
+  padding: 0.55rem 1.5rem;
+  border-radius: 999px;
+  background: var(--accent-color);
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.link-button:hover,
+.link-button:focus {
+  background: #8f3257;
+  transform: translateY(-1px);
+}
+
 main {
   display: flex;
   align-items: stretch;
