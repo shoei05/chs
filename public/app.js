@@ -98,7 +98,7 @@ function renderDetail(commitment) {
   detailContainer.append(requirementList);
 
   const legacyHeading = document.createElement("h3");
-  legacyHeading.textContent = "2018に対応する";
+  legacyHeading.textContent = "旧版CHSに対応する";
   detailContainer.append(legacyHeading);
 
   commitment.legacy_commitments.forEach((legacy) => {
@@ -106,7 +106,7 @@ function renderDetail(commitment) {
     legacySection.className = "legacy";
 
     const legacyTitle = document.createElement("h4");
-    legacyTitle.textContent = `コミットメント番号${legacy.number}：「${legacy.title}」`;
+    legacyTitle.textContent = `旧版CHS コミットメント${legacy.number}：「${legacy.title}」`;
     legacySection.append(legacyTitle);
 
     const introHtml = legacy.intro_html || legacy.intro;
