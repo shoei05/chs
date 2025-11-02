@@ -146,6 +146,12 @@ ol.requirements li {
   margin-top: 0;
 }
 
+.legacy h5 {
+  margin: 1.5rem 0 0.5rem;
+  color: var(--accent-color);
+  font-size: 1rem;
+}
+
 .legacy-intro,
 .legacy-content {
   background: #f5f7fa;

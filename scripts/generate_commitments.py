@@ -96,6 +96,23 @@ def emphasize_guidance_labels(text: str) -> str:
     return pattern.sub(lambda m: f"{m.group(1)}**{m.group(2)}{m.group(3)}**", text)
 
 
+def format_numbered_bullets(text: str) -> str:
+    """Lift numbered markers (e.g. * **1.1**) into headings."""
+    if not text:
+        return text
+    number_pattern = re.compile(r"^\s*[\*\-]\s*\*\*(\d+\.\d+)\*\*\s*$")
+    lines = text.splitlines()
+    formatted: List[str] = []
+    for line in lines:
+        match = number_pattern.match(line)
+        if match:
+            formatted.append(f"##### {match.group(1)}")
+            formatted.append("")
+        else:
+            formatted.append(line)
+    return "\n".join(formatted)
+
+
 @dataclass
 class Requirement:
     idx: str
@@ -284,6 +301,8 @@ def generate() -> None:
                             name: render_markdown_to_html(
                                 emphasize_guidance_labels(legacy.sections.get(name, "").strip())
                                 if name == "ガイダンスノート"
+                                else format_numbered_bullets(legacy.sections.get(name, "").strip())
+                                if name in {"基本行動", "組織の責任"}
                                 else legacy.sections.get(name, "").strip()
                             )
                             for name in TARGET_SECTIONS
