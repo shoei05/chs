@@ -36,6 +36,12 @@ SOURCE_2018_PATH = BASE_DIR / "2018.md"
 DATA_DIR = BASE_DIR / "public" / "data"
 
 TARGET_SECTIONS = ["パフォーマンス指標", "基本行動", "組織の責任", "ガイダンスノート"]
+EXTRANEOUS_MARKERS = [
+    "CHSの使用について",
+    "CHSでは、以下の定義を使用する：",
+    "ISBN:",
+    "危機や脆弱な状況にある人びとや地域コミュニティを支援する個人もしくは組織は、CHSを",
+]
 
 
 class GenerationError(Exception):
@@ -94,6 +100,17 @@ def emphasize_guidance_labels(text: str) -> str:
     """Bold the label portion before the first colon in guidance bullet items."""
     pattern = re.compile(r"^(\s*[\*\-]\s*)([^：\n]+)(：)", re.MULTILINE)
     return pattern.sub(lambda m: f"{m.group(1)}**{m.group(2)}{m.group(3)}**", text)
+
+
+def trim_extraneous_content(text: str) -> str:
+    """Remove trailing glossary or publication text after recognized markers."""
+    if not text:
+        return text
+    for marker in EXTRANEOUS_MARKERS:
+        idx = text.find(marker)
+        if idx != -1:
+            return text[:idx].rstrip()
+    return text
 
 
 def format_numbered_bullets(text: str) -> str:
@@ -169,6 +186,7 @@ def parse_2024_commitments(pdf_text: str) -> Dict[int, Commitment2024]:
                 if match_req:
                     if current_idx is not None:
                         text = clean_japanese_spacing(" ".join(current_parts))
+                        text = trim_extraneous_content(text)
                         requirements.append(Requirement(idx=current_idx, text=text))
                         current_parts = []
                     current_idx = match_req.group(1)
@@ -182,6 +200,7 @@ def parse_2024_commitments(pdf_text: str) -> Dict[int, Commitment2024]:
 
         if current_idx is not None:
             text = clean_japanese_spacing(" ".join(current_parts))
+            text = trim_extraneous_content(text)
             requirements.append(Requirement(idx=current_idx, text=text))
 
         title = clean_japanese_spacing(" ".join(title_lines))
