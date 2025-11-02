@@ -1,0 +1,166 @@
+:root {
+  color-scheme: light dark;
+  font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", system-ui, sans-serif;
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+body {
+  margin: 0;
+  background: #f7f7f8;
+  color: #1b1b1f;
+}
+
+header,
+footer {
+  background: #003049;
+  color: #ffffff;
+  padding: 1.25rem 2rem;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.generated-info {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  opacity: 0.85;
+}
+
+main {
+  display: flex;
+  align-items: stretch;
+  min-height: calc(100vh - 9rem);
+}
+
+nav#commitment-list {
+  min-width: 18rem;
+  max-width: 22rem;
+  border-right: 1px solid #d4d7dc;
+  background: #ffffff;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+nav#commitment-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+nav#commitment-list button {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d4d7dc;
+  border-radius: 0.5rem;
+  background: #f0f4f9;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease, border 0.2s ease;
+}
+
+nav#commitment-list button:hover,
+nav#commitment-list button:focus {
+  outline: none;
+  border-color: #1565c0;
+  background: #e3f2fd;
+}
+
+nav#commitment-list button.active {
+  border-color: #003049;
+  background: #d1ecff;
+}
+
+#commitment-detail {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+#commitment-detail h2 {
+  margin-top: 0;
+}
+
+#commitment-detail .commitment-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.download-button {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background: #1565c0;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.download-button:hover,
+.download-button:focus {
+  background: #0d47a1;
+}
+
+ol.requirements {
+  padding-left: 1.25rem;
+}
+
+ol.requirements li {
+  margin-bottom: 0.5rem;
+}
+
+.requirement-id {
+  font-weight: 600;
+  display: inline-block;
+  min-width: 3rem;
+}
+
+.legacy {
+  margin-bottom: 2rem;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  border: 1px solid #d4d7dc;
+}
+
+.legacy h4 {
+  margin-top: 0;
+}
+
+.legacy pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #f5f7fa;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e1e4e8;
+}
+
+.placeholder {
+  margin: 0;
+  color: #5c6b7a;
+}
+
+footer {
+  font-size: 0.85rem;
+}
+
+@media (max-width: 960px) {
+  main {
+    flex-direction: column;
+  }
+
+  nav#commitment-list {
+    max-width: none;
+    min-width: unset;
+    border-right: none;
+    border-bottom: 1px solid #d4d7dc;
+  }
+}
